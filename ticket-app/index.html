@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tickets</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Gestor de Tickets</h1>
+            <p>Crea, gestiona e imprime tus registros</p>
+        </div>
+
+        <div class="content">
+            <div class="success-message" id="successMessage">
+                ✓ Registro guardado correctamente
+            </div>
+
+            <!-- Formulario -->
+            <form id="formulario">
+                <div class="form-group">
+                    <label for="nombre">Nombre *</label>
+                    <input 
+                        type="text" 
+                        id="nombre" 
+                        placeholder="Ej: ryan gosling" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción *</label>
+                    <textarea 
+                        id="descripcion" 
+                        placeholder="Ej: Solicitud de cambio en el sistema..." 
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-guardar">💾 Guardar</button>
+                    <button 
+                        type="button" 
+                        class="btn-generar" 
+                        id="generarBtn"
+                        onclick="generarTicket()"
+                    >
+                        🖨️ Generar Ticket
+                    </button>
+                </div>
+            </form>
+
+            <!-- Registros -->
+            <div class="registros-section">
+                <h2>📝 Registros Guardados</h2>
+                <div class="form-group" id="selectorRegistroWrapper" style="display: none;">
+                    <label for="registroSeleccionado">Selecciona el registro para generar el QR</label>
+                    <select id="registroSeleccionado" aria-label="Selecciona un registro">
+                    </select>
+                </div>
+                <div id="registrosContainer">
+                    <div class="vacio">No hay registros aún. ¡Crea uno nuevo!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de impresión (oculta) -->
+    <div id="ticket"></div>
+
+    <script>
+        const SELECTED_REGISTRO_KEY = 'selected_ticket_id';
+        const STORAGE_KEY = 'tickets_registros';
+        let registrosActuales = [];
+
+        function leerRegistros() {
+            try {
+                const datos = localStorage.getItem(STORAGE_KEY);
+                return datos ? JSON.parse(datos) : [];
+            } catch (error) {
+                console.error('Error leyendo localStorage:', error);
+                return [];
+            }
+        }
+
+        function guardarRegistros(registros) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(registros));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('registroSeleccionado');
+            if (select) {
+                select.addEventListener('change', function() {
+                    localStorage.setItem(SELECTED_REGISTRO_KEY, this.value);
+                });
+            }
+
+            document.getElementById('formulario').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const nombre = document.getElementById('nombre').value.trim();
+                const descripcion = document.getElementById('descripcion').value.trim();
+
+                if (!nombre || !descripcion) {
+                    alert('Por favor completa todos los campos');
+                    return;
+                }
+
+                const registros = leerRegistros();
+                const nuevoRegistro = {
+                    id: Date.now(),
+                    nombre,
+                    descripcion,
+                    fecha: new Date().toLocaleString('es-ES')
+                };
+
+                registros.unshift(nuevoRegistro);
+                guardarRegistros(registros);
+                registrosActuales = registros;
+
+                const mensaje = document.getElementById('successMessage');
+                mensaje.classList.add('show');
+                setTimeout(() => mensaje.classList.remove('show'), 3000);
+
+                this.reset();
+                document.getElementById('nombre').focus();
+                cargarRegistros();
+            });
+
+            cargarRegistros();
+        });
+
+        function cargarRegistros() {
+            registrosActuales = leerRegistros();
+
+            const container = document.getElementById('registrosContainer');
+            const select = document.getElementById('registroSeleccionado');
+            const wrapper = document.getElementById('selectorRegistroWrapper');
+
+            if (registrosActuales.length === 0) {
+                container.innerHTML = '<div class="vacio">No hay registros aún. ¡Crea uno nuevo!</div>';
+                const botonGenerar = document.getElementById('generarBtn');
+                if (botonGenerar) botonGenerar.disabled = true;
+                if (wrapper) wrapper.style.display = 'none';
+                if (select) select.innerHTML = '';
+                localStorage.removeItem(SELECTED_REGISTRO_KEY);
+                return;
+            }
+
+            const botonGenerar = document.getElementById('generarBtn');
+            if (botonGenerar) botonGenerar.disabled = false;
+            if (wrapper) wrapper.style.display = 'block';
+
+            const registroSeleccionadoGuardado = Number(localStorage.getItem(SELECTED_REGISTRO_KEY));
+            const registroSeleccionadoId = registrosActuales.some(r => Number(r.id) === registroSeleccionadoGuardado)
+                ? registroSeleccionadoGuardado
+                : Number(registrosActuales[0].id);
+
+            if (select) {
+                select.innerHTML = registrosActuales.map(registro => `
+                    <option value="${registro.id}">${escaparHTML(registro.nombre)} - ${registro.fecha}</option>
+                `).join('');
+                select.value = String(registroSeleccionadoId);
+                localStorage.setItem(SELECTED_REGISTRO_KEY, String(registroSeleccionadoId));
+            }
+
+            let html = `
+                <table class="tabla-registros">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Fecha/Hora</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            registrosActuales.forEach(registro => {
+                const seleccionado = Number(registro.id) === Number(registroSeleccionadoId) ? '✓' : '';
+                html += `
+                    <tr>
+                        <td><strong>${seleccionado} ${escaparHTML(registro.nombre)}</strong></td>
+                        <td>${escaparHTML(registro.descripcion)}</td>
+                        <td>${registro.fecha}</td>
+                        <td class="acciones">
+                            <button class="btn-eliminar" onclick="eliminarRegistro(${registro.id})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function eliminarRegistro(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                return;
+            }
+
+            const registros = leerRegistros().filter(registro => Number(registro.id) !== Number(id));
+            guardarRegistros(registros);
+
+            const registroActual = Number(localStorage.getItem(SELECTED_REGISTRO_KEY));
+            if (registroActual === Number(id)) {
+                localStorage.removeItem(SELECTED_REGISTRO_KEY);
+            }
+
+            cargarRegistros();
+        }
+
+        function generarTicket() {
+            const datos = registrosActuales.length ? registrosActuales : leerRegistros();
+
+            if (datos.length === 0) {
+                alert('No hay registros para generar el ticket');
+                return;
+            }
+
+            const select = document.getElementById('registroSeleccionado');
+            const registroIdSeleccionado = select ? Number(select.value) : null;
+            const registro = datos.find(r => Number(r.id) === Number(registroIdSeleccionado)) || datos[0];
+
+            if (!registro) {
+                alert('Selecciona un registro válido para continuar');
+                return;
+            }
+
+            localStorage.setItem(SELECTED_REGISTRO_KEY, String(registro.id));
+
+            let html = '<div class="ticket-container">';
+            html += '<div class="ticket-header">';
+            html += '<div class="ticket-title">TICKET DE REGISTRO</div>';
+            html += `<div class="ticket-fecha">Generado: ${new Date().toLocaleString('es-ES')}</div>`;
+            html += '</div>';
+
+            html += '<div class="ticket-contenido">';
+            html += '<div class="ticket-item">';
+            html += `<div class="ticket-nombre">1. ${escaparHTML(registro.nombre)}</div>`;
+            html += `<div class="ticket-descripcion">${escaparHTML(registro.descripcion)}</div>`;
+            html += `<div class="ticket-hora">${registro.fecha}</div>`;
+            html += '</div>';
+            html += '</div>';
+
+            const datosJSON = JSON.stringify(registro);
+            const qrContainerId = 'qrcode-container-' + Date.now();
+
+            html += `<div class="ticket-qr">`;
+            html += `<div id="${qrContainerId}"></div>`;
+            html += `<div class="qr-label">Escanea para ver los datos</div>`;
+            html += `</div>`;
+            html += '</div>';
+
+            document.getElementById('ticket').innerHTML = html;
+
+            setTimeout(() => {
+                new QRCode(document.getElementById(qrContainerId), {
+                    text: datosJSON,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                window.print();
+            }, 100);
+        }
+
+        function escaparHTML(texto) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(texto).replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>

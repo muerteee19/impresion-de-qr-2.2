@@ -1,0 +1,12 @@
+Cómo instalar los drivers de la Brother QL-570 y configurar el tamaño de impresión
+
+Entra a la página oficial de Brother para descargar los drivers:
+https://support.brother.com/g/b/downloadtop.aspx?c=us&lang=es&prod=lpql570eus
+Descarga el archivo del driver. Al abrirlo, se creará una carpeta con un archivo ZIP y otros elementos dentro.
+Abre esa carpeta y ejecuta el primer archivo .exe que aparezca.
+Dentro, busca la carpeta llamada "86" (o "x86") y ábrela.
+Ejecuta los archivos .exe de esa carpeta uno por uno, hasta que alguno abra el instalador completo y termine de instalar todo el software.
+Cuando termine la instalación, reinicia tanto la computadora como la impresora.
+Ve a Configuración de Windows > Impresoras y escáneres (o Panel de Control > Dispositivos e impresoras) y busca la impresora llamada "Brother QL-570".
+Entra a Preferencias de impresión.
+Cambia el tamaño de papel a 62 x 29 mm, ya que por defecto Windows suele traer seleccionada una medida distinta que no coincide con el rollo instalado.

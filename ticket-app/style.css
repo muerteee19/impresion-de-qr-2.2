@@ -1,0 +1,302 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.header p {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.content {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-guardar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    flex: 1;
+    min-width: 150px;
+}
+
+.btn-guardar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-generar {
+    background: #27ae60;
+    color: white;
+    flex: 1;
+    min-width: 150px;
+}
+
+.btn-generar:hover {
+    background: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+}
+
+.btn-generar:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-eliminar {
+    background: #e74c3c;
+    color: white;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.btn-eliminar:hover {
+    background: #c0392b;
+}
+
+.registros-section {
+    margin-top: 40px;
+}
+
+.registros-section h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 20px;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
+}
+
+.tabla-registros {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.tabla-registros thead {
+    background: #f8f9fa;
+}
+
+.tabla-registros th {
+    padding: 12px;
+    text-align: left;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tabla-registros td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #555;
+}
+
+.tabla-registros tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.tabla-registros .acciones {
+    text-align: center;
+}
+
+.vacio {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-style: italic;
+}
+
+#ticket {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: 62mm 29mm;
+        margin: 0;
+    }
+
+    body {
+        background: white;
+        padding: 0;
+        width: 62mm;
+        height: 29mm;
+    }
+
+    .container {
+        display: none;
+    }
+
+    #ticket {
+        display: block !important;
+        width: 62mm;
+        height: 29mm;
+        overflow: hidden;
+    }
+
+    .ticket-container {
+        width: 62mm;
+        height: 29mm;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2mm;
+        padding: 1.5mm;
+        border: 0;
+        page-break-inside: avoid;
+    }
+
+    .ticket-header {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+        margin: 0;
+        border: 0;
+        padding: 0;
+    }
+
+    .ticket-title {
+        font-size: 8px;
+        font-weight: bold;
+        margin-bottom: 1mm;
+    }
+
+    .ticket-fecha {
+        font-size: 6px;
+        color: #666;
+    }
+
+    .ticket-contenido {
+        display: none;
+    }
+
+    .ticket-qr {
+        flex: 0 0 24mm;
+        width: 24mm;
+        height: 24mm;
+        margin: 0;
+        border: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+    .ticket-qr canvas,
+    .ticket-qr img {
+        display: block;
+        width: 24mm !important;
+        height: 24mm !important;
+        max-width: 24mm;
+    }
+
+    .qr-label {
+        display: none;
+    }
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: none;
+    border: 1px solid #c3e6cb;
+}
+
+.success-message.show {
+    display: block;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
